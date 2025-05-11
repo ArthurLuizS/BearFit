@@ -13,32 +13,101 @@
       <div
         class="tw-border tw-border-slate-300 tw-rounded-md tw-h-[60vh] tw-p-3 tw-overflow-hidden"
       >
-        <div>
-          <span class="tw-text-xl"> Ficha: </span>
-          <span class="tw-text-lg">
-            {{ sheetStore.WorkoutSheet.title }}
-          </span>
+        <div v-if="!openSheet" class="tw-h-[60vh] tw-p-3 tw-overflow-hidden">
+          <div>
+            <span class="tw-text-xl"> Ficha: </span>
+            <span class="tw-text-lg">
+              {{ sheetStore.WorkoutSheet.title }}
+            </span>
+          </div>
+          <q-virtual-scroll
+            :items="sheetStore.WorkoutSheet.sheets"
+            virtual-scroll-item-size="5"
+            class="tw-flex tw-flex-col tw-h-full"
+          >
+            <template v-slot="{ item, index }">
+              <div
+                :key="index"
+                class="tw-flex tw-justify-between tw-items-center tw-border tw-bg-neutral-400 tw-h-10 tw-rounded-md tw-p-2 tw-mb-3 tw-text-lg"
+              >
+                <div class="tw-text-black">{{ item.name }}</div>
+                <q-btn
+                  flat
+                  icon="chevron_right"
+                  size="sm"
+                  @click="handleSheet(item)"
+                />
+              </div>
+            </template>
+          </q-virtual-scroll>
         </div>
-        <q-virtual-scroll
-          :items="sheetStore.WorkoutSheet.sheets"
-          virtual-scroll-item-size="5"
-          class="tw-flex tw-flex-col tw-h-full"
-        >
-          <template v-slot="{ item, index }">
+        <div v-else class="tw-pt-4 tw-h-full">
+          <div>{{ sheet.name }}</div>
+          <q-scroll-area class="tw-relative tw-overflow-hidden tw-h-full">
             <div
+              v-for="(exercice, index) in sheet.exercises"
               :key="index"
-              class="tw-flex tw-justify-between tw-items-center tw-border tw-bg-neutral-400 tw-h-10 tw-rounded-md tw-p-2 tw-mb-3 tw-text-lg"
+              class="tw-flex tw-flex-col tw-justify-between tw-border tw-bg-neutral-400 tw-rounded-md tw-p-2 tw-mb-3 tw-text-lg tw-transition-all tw-duration-300 tw-ease-in-out tw-relative tw-overflow-hidden"
+              :class="{
+                'tw-h-80': expandedIndex === index,
+                'tw-h-10': expandedIndex !== index,
+              }"
             >
-              <div class="tw-text-black">{{ item.name }}</div>
-              <q-btn
-                flat
-                icon="chevron_right"
-                size="sm"
-                @click="handleSheet(item)"
-              />
+              <div class="tw-text-black">
+                {{ exercice.name }}
+                <q-btn
+                  flat
+                  :icon="
+                    expandedExercise
+                      ? 'keyboard_arrow_up'
+                      : 'keyboard_arrow_down'
+                  "
+                  size="sm"
+                  @click="toggleExpand(index)"
+                  class="tw-h-10"
+                />
+              </div>
+              <div>teste</div>
             </div>
-          </template>
-        </q-virtual-scroll>
+          </q-scroll-area>
+        </div>
+        <!-- <div class="tw-relative tw-h-[60vh] tw-p-3 tw-overflow-hidden">
+          <div class="tw-w-full tw-border">
+            <q-btn @click="openSheet = !openSheet" label="voltar" />
+            <span>{{ sheet.name }}</span>
+          </div>
+          <q-virtual-scroll
+            :items="sheet.exercises"
+            virtual-scroll-item-size="5"
+            class="tw-flex tw-flex-col tw-h-full"
+          >
+            <template v-slot="{ item, index }">
+              <div
+                :key="index"
+                class="tw-flex tw-justify-between tw-border tw-bg-neutral-400 tw-rounded-md tw-p-2 tw-mb-3 tw-text-lg tw-transition-all tw-duration-300 tw-ease-in-out"
+                :class="{
+                  'tw-h-96': expandedIndex === index,
+                  'tw-h-10': expandedIndex !== index,
+                }"
+              >
+                <div class="tw-text-black">
+                  {{ item.name }}
+                </div>
+                <q-btn
+                  flat
+                  :icon="
+                    expandedExercise
+                      ? 'keyboard_arrow_up'
+                      : 'keyboard_arrow_down'
+                  "
+                  size="sm"
+                  @click="toggleExpand(index)"
+                  class="tw-h-10"
+                />
+              </div>
+            </template>
+          </q-virtual-scroll>
+        </div> -->
       </div>
     </div>
   </q-page>
@@ -71,8 +140,23 @@ const exercise = ref({
   notes: null,
 });
 
+const openSheet = ref(false);
+const sheet = ref();
+
 const handleSheet = (item) => {
+  openSheet.value = true;
+  sheet.value = item;
   console.log(item);
+};
+
+const expandedIndex = ref(null);
+
+const toggleExpand = (index) => {
+  expandedIndex.value = expandedIndex.value === index ? null : index;
+};
+
+const handleExercice = (exercice) => {
+  console.log(exercice);
 };
 // const WorkoutSheet = ref({
 //   id: null,
