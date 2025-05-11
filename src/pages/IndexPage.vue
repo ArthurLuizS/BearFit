@@ -47,9 +47,9 @@
             <div
               v-for="(exercice, index) in sheet.exercises"
               :key="index"
-              class="tw-flex tw-flex-col tw-justify-between tw-border tw-bg-neutral-400 tw-rounded-md tw-p-2 tw-mb-3 tw-text-lg tw-transition-all tw-duration-300 tw-ease-in-out tw-relative tw-overflow-hidden"
+              class="tw-flex tw-flex-col tw-border tw-bg-neutral-400 tw-rounded-md tw-p-2 tw-mb-3 tw-text-lg tw-transition-all tw-duration-300 tw-ease-in-out tw-relative tw-overflow-hidden"
               :class="{
-                'tw-h-80': expandedIndex === index,
+                'tw-h-72': expandedIndex === index,
                 'tw-h-10': expandedIndex !== index,
               }"
             >
@@ -58,7 +58,7 @@
                 <q-btn
                   flat
                   :icon="
-                    expandedExercise
+                    expandedIndex === index
                       ? 'keyboard_arrow_up'
                       : 'keyboard_arrow_down'
                   "
@@ -66,9 +66,74 @@
                   @click="toggleExpand(index)"
                   class="tw-h-10"
                 />
+
+                <q-toggle
+                  v-if="expandedIndex === index"
+                  v-model="editMode"
+                  icon="edit"
+                />
               </div>
-              <div>teste</div>
+              <q-form>
+                <q-input
+                  label="Nome do exercicio"
+                  v-if="editMode"
+                  color="secondary"
+                  rounded
+                  flat
+                  dense
+                  v-model="exercice.name"
+                />
+                <q-input
+                  label="Carga"
+                  rounded
+                  flat
+                  dense
+                  v-model="exercice.weight"
+                />
+                <q-input
+                  label="Anotações"
+                  rounded
+                  flat
+                  dense
+                  v-model="exercice.notes"
+                />
+                <q-btn
+                  @click="handleHistory(exercice)"
+                  label="Histórico de Carga"
+                  rounded
+                  flat
+                  dense
+                />
+                <q-btn
+                  @click="saveExercice(exercice)"
+                  label="salvar"
+                  v-if="editMode"
+                />
+              </q-form>
             </div>
+            <q-dialog v-model="openHistory" class="tw-w-60 tw-h-72">
+              <q-card class="tw-w-full tw-h-full tw-p-4 tw-bg-slate-600">
+                <q-card-section class="text-h6">
+                  Histórico de Carga
+                </q-card-section>
+
+                <q-card-section class="tw-w-full tw-h-full">
+                  <q-timeline>
+                    <q-timeline-entry
+                      v-for="(entry, index) in weightHistory"
+                      :key="index"
+                      :title="entry.date"
+                    >
+                      {{ entry.weight + "kg" }}
+                    </q-timeline-entry>
+                  </q-timeline>
+                </q-card-section>
+
+                <q-card-actions align="right">
+                  <q-btn flat label="Fechar" @click="openHistory = false" />
+                </q-card-actions>
+              </q-card>
+            </q-dialog>
           </q-scroll-area>
         </div>
         <!-- <div class="tw-relative tw-h-[60vh] tw-p-3 tw-overflow-hidden">
@@ -151,12 +216,34 @@ const handleSheet = (item) => {
 
 const expandedIndex = ref(null);
 
+const expanded = ref(false);
 const toggleExpand = (index) => {
   expandedIndex.value = expandedIndex.value === index ? null : index;
+  expanded.value = true;
 };
 
 const handleExercice = (exercice) => {
   console.log(exercice);
+};
+
+const openHistory = ref(false);
+const weightHistory = ref();
+const handleHistory = (exercice) => {
+  console.log(exercice);
+  openHistory.value = true;
+  weightHistory.value = exercice.weightHistory;
+};
+
+const editMode = ref(false);
+
+const saveExercice = async (exercice) => {
+  try {
+    // TODO: mandar pro banco de dados
+    console.log(exercice);
+    editMode.value = false;
+  } catch (error) {
+    console.error(error);
+  }
 };
 // const WorkoutSheet = ref({
 //   id: null,
