@@ -1,29 +1,41 @@
 <template>
   <q-page>
-    <div class="tw-border tw-w-[100vw] tw-h-full tw-p-4">
+    <div class="tw-border tw-w-[100vw] tw-h-full tw-p-4 tw-bg-slate-950">
       <!-- class="tw-border tw-w-[100vw] tw-h-full tw-p-4 tw-bg-slate-900 tw-color text-white" -->
-      <div class="tw-flex tw- tw-items-center">
-        <div
-          class="tw-w-24 tw-h-24 tw-flex tw-items-center data-[dark=true]:tw-bg-black/60 tw-bg-red-500"
+      <div class="tw-flex tw-items-center tw-gap-9">
+        <!-- <div
+          class="tw-w-24 tw-h-24 tw-flex tw-items-center data-[dark=true]:tw-bg-black/60 tw-border"
         >
-          *imagem do urso*
-        </div>
-        <div>BearFit</div>
+      </div> -->
+        <q-img :src="Panda" class="tw-w-36" />
+        <div class="tw-text-xl">BearFit 🐾</div>
       </div>
-      <div>
-        <div>Ficha {{ ficha.nome }}</div>
+      <div
+        class="tw-border tw-border-slate-300 tw-rounded-md tw-h-[60vh] tw-p-3 tw-overflow-hidden"
+      >
+        <div>
+          <span class="tw-text-xl"> Ficha: </span>
+          <span class="tw-text-lg">
+            {{ sheetStore.WorkoutSheet.title }}
+          </span>
+        </div>
         <q-virtual-scroll
-          :items="ficha.exercicios"
-          virtual-scroll-item-size="42"
-          class="tw-flex tw-flex-col tw-gap-2"
+          :items="sheetStore.WorkoutSheet.sheets"
+          virtual-scroll-item-size="5"
+          class="tw-flex tw-flex-col tw-h-full"
         >
           <template v-slot="{ item, index }">
             <div
               :key="index"
-              class="tw-flex tw-justify-between tw-items-center tw-border tw-bg-slate-400 tw-text-black tw-h-10 tw-rounded-md tw-p-2"
+              class="tw-flex tw-justify-between tw-items-center tw-border tw-bg-neutral-400 tw-h-10 tw-rounded-md tw-p-2 tw-mb-3 tw-text-lg"
             >
-              <div>{{ item.nome }}</div>
-              <q-btn flat icon="chevron_right" size="sm" />
+              <div class="tw-text-black">{{ item.name }}</div>
+              <q-btn
+                flat
+                icon="chevron_right"
+                size="sm"
+                @click="handleSheet(item)"
+              />
             </div>
           </template>
         </q-virtual-scroll>
@@ -36,31 +48,77 @@
 import { ref, onBeforeMount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useQuasar, Dark } from "quasar";
+import { useSheet } from "stores/WorkoutSheet.js";
+import Panda from "src/assets/panda.png";
 
 const $q = useQuasar();
 const route = useRoute();
 const router = useRouter();
+const sheetStore = useSheet();
 const toggleDarkMode = () => {
   Dark.set(!Dark.isActive);
   console.log(Dark.isActive);
 };
 
-const ficha = ref({
-  exercicios: [],
-  nome: null,
+const exercise = ref({
+  id: null,
+  name: null,
+  muscleGroup: null,
+  sets: null,
+  reps: null,
+  weight: null,
+  restSeconds: null,
+  notes: null,
 });
 
+const handleSheet = (item) => {
+  console.log(item);
+};
+// const WorkoutSheet = ref({
+//   id: null,
+//   title: null,
+//   createdAt: null,
+//   sheets: [
+//     {
+//       id: null,
+//       name: "LegDay",
+//       muscleGroup: null,
+//       notes: null,
+//       exercises: [
+//         {
+//           id: null,
+//           name: null,
+//           muscleGroup: null,
+//           sets: null,
+//           reps: null,
+//           weight: null,
+//           restSeconds: null,
+//           notes: null,
+//         },
+//       ],
+//     },
+//   ],
+// });
+// const ficha = ref({
+//   exercicios: [],
+//   nome: null,
+// });
+
 onBeforeMount(() => {
-  ficha.value = {
-    exercicios: [
-      { nome: "LegPress 45", carga: null, historico: [] },
-      { nome: "Agachamento", carga: null, historico: [] },
-      { nome: "Mesa extensora", carga: null, historico: [] },
-    ],
-    nome: "ABCDE",
-  };
+  // ficha.value = {
+  //   exercicios: [
+  //     { nome: "LegPress 45", carga: null, historico: [] },
+  //     { nome: "Agachamento", carga: null, historico: [] },
+  //     { nome: "Mesa extensora", carga: null, historico: [] },
+  //   ],
+  //   nome: "ABCDE",
+  // };
   const dataAtual = new Date();
 });
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+* {
+  @apply tw-text-white;
+}
+</style>
