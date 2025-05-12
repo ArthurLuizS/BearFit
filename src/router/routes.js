@@ -5,6 +5,12 @@ const routes = [
     component: () => import("layouts/BearFitLayout.vue"),
     children: [{ path: "", component: () => import("pages/IndexPage.vue") }],
   },
+  {
+    path: "/exercices",
+    meta: { name: "Exercices" },
+    component: () => import("layouts/BearFitLayout.vue"),
+    children: [{ path: "", component: () => import("pages/ExercicePage.vue") }],
+  },
   // {
   //   meta: { public: true },
   //   path: "/login",

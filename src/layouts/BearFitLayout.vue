@@ -15,14 +15,14 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
-      <footer-navigation
+      <router-view :key="$route.fullPath" />
+      <!-- <footer-navigation
         :links="[
           { link: '/', icon: 'sports_gymnastics ' },
           { link: '/fichas', icon: 'assignment ' },
-          { link: '/treinos', icon: 'fitness_center' },
+          { link: '/exercices', icon: 'fitness_center' },
         ]"
-      />
+      /> -->
     </q-page-container>
   </q-layout>
 </template>
