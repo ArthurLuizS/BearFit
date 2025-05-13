@@ -1,0 +1,5 @@
+{
+  "appId": "com.example.app",
+  "appName": "BearFit",
+  "webDir": "dist/spa"
+}

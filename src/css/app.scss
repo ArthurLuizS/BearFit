@@ -15,15 +15,15 @@
 }
 
 .body--light {
-  color: black;
 }
+// color: black;
 
+// color: white;
 .body--dark {
   /* ... */
-  color: white;
 }
 
 .q-page {
   width: 100vw;
-  @apply tw-bg-slate-950;
+  @apply tw-bg-[#f7f7f7];
 }

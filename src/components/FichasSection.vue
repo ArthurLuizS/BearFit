@@ -5,3 +5,4 @@
     Conteudo de fichas
   </div>
 </template>
+<script setup></script>
