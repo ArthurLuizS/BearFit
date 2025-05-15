@@ -1,7 +1,8 @@
 <template>
   <div class="tw-w-full tw-h-full tw-border">
     <q-scroll-area class="tw-h-full tw-w-full" v-if="items.length > 0">
-      <span class="tw-text-lg tw-w-full">
+      <span v-if="props.title"> {{ props.title }}</span>
+      <span class="tw-text-lg tw-w-full" v-else>
         Lista de {{ items[0].data.category }} cadastrados:
       </span>
       <div
@@ -10,9 +11,9 @@
         class="tw-w-full tw-flex tw-flex-row tw-justify-between tw-mt-3"
       >
         <div>
-          {{ item.data?.name || "Exercício Sem nome" }}
+          {{ item.data?.name || "Item Sem nome" }}
         </div>
-        <div class="tw-w-14 tw-flex tw-justify-between">
+        <div class="tw-w-14 tw-flex tw-justify-between" v-if="props.actions">
           <q-icon
             name="edit"
             @click="handleEdit(item)"
@@ -54,6 +55,8 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  title: String,
+  actions: Boolean,
 });
 
 // Garante que Items é sempre um array

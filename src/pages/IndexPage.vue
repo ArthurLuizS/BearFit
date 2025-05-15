@@ -1,13 +1,9 @@
 <template>
   <q-page>
     <div class="tw-p-2 tw-w-[100vw] tw-h-full tw-relative">
-      <div class="tw-bg-white">
-        <q-btn
-          label="carregar dado"
-          @click="loadData('2ba22e68-1036-408e-b52d-88130e2bc31d')"
-        />
-        <q-btn color="black" label="carregar tudo" @click="getAllData" />
-      </div>
+      <!-- <div class="tw-bg-white">
+        <q-btn color="black" label="deletar tudo" @click="masterResetData" />
+      </div> -->
       <q-tabs
         v-model="tab"
         class="text-teal tw-absolute tw-bottom-0 tw-left-[50%] tw-translate-x-[-50%]"
@@ -25,18 +21,25 @@
         <q-img :src="Panda" class="tw-w-36" />
         <div class="tw-text-xl">BearFit 🐾</div>
       </div>
-      <q-tab-panels v-model="tab" class="no-padding">
+      <q-tab-panels
+        v-model="tab"
+        animated
+        transition-prev="fade"
+        transition-next="fade"
+      >
         <q-tab-panel name="Home">
           <home-section />
         </q-tab-panel>
         <q-tab-panel name="Fichas">
-          <fichas-section></fichas-section
+          <fichas-section
+            :items-list="sheetStore.savedDataList"
+          ></fichas-section
         ></q-tab-panel>
         <q-tab-panel name="Exercicios">
-          <exercices-section
-            @send-exercice="saveData"
-            :-exercices-list="sheetStore.savedDataList"
-          ></exercices-section>
+          <exercises-section
+            @send-exercise="saveData"
+            :-exercises-list="sheetStore.savedDataList"
+          ></exercises-section>
         </q-tab-panel>
       </q-tab-panels>
     </div>
@@ -46,7 +49,7 @@
 <script setup>
 import { ref, onBeforeMount } from "vue";
 import { useSheet } from "src/stores/WorkoutSheet.js";
-import ExercicesSection from "src/components/ExercicesSection.vue";
+import ExercisesSection from "src/components/ExercisesSection.vue";
 import HomeSection from "src/components/HomeSection.vue";
 import FichasSection from "src/components/FichasSection.vue";
 
@@ -57,6 +60,10 @@ import { v4 as uuidv4 } from "uuid";
 const tab = ref();
 
 const sheetStore = useSheet();
+
+const masterResetData = () => {
+  sheetStore.clearAllItems();
+};
 onBeforeMount(() => {
   // ficha.value = {
   //   exercicios: [

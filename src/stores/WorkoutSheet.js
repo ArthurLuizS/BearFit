@@ -81,7 +81,7 @@ export const useSheet = defineStore("sheet", {
     doubleCount: (state) => state.counter * 2,
   },
   actions: {
-    async addItem(item) {
+    async addItem(item, options = { reload: true }) {
       const id = uuidv4();
       try {
         await Storage.set({
@@ -98,7 +98,9 @@ export const useSheet = defineStore("sheet", {
         });
 
         console.log("Item salvo com id:", id);
-        this.loadAllItems();
+        if (options.reload) {
+          await this.loadAllItems();
+        }
       } catch (e) {
         console.error("Error saving data", e);
       }
@@ -119,11 +121,212 @@ export const useSheet = defineStore("sheet", {
         }
 
         this.savedDataList = allData;
+        if (this.savedDataList.length === 0) {
+          this.addDefaultExercises();
+        }
         console.log("All data loaded:", allData);
         return allData;
       } catch (e) {
         console.error("Error loading all data", e);
       }
+    },
+
+    async addDefaultExercises() {
+      const exercises = [
+        {
+          name: "Pulley Frente",
+          muscleGroup: "costas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Remada Curvada com Barra",
+          muscleGroup: "costas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Remada Aberta (litle horse)",
+          muscleGroup: "costas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Crucifixo Inverso",
+          muscleGroup: "ombros",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Rosca Simultânea com Halteres",
+          muscleGroup: "biceps",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Extensão Lombar",
+          muscleGroup: "costas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Supino Máquina",
+          muscleGroup: "peito",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Supino inclinado",
+          muscleGroup: "peito",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Crucifixo",
+          muscleGroup: "peito",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Crossover",
+          muscleGroup: "peito",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Elevação Lateral",
+          muscleGroup: "ombros",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Triceps Pulley",
+          muscleGroup: "triceps",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Tríceps Frances",
+          muscleGroup: "triceps",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Abdômen Máquina",
+          muscleGroup: "abdomen",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Agachamento Livre",
+          muscleGroup: "pernas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Agachamento Smith",
+          muscleGroup: "pernas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Agachamento Hack",
+          muscleGroup: "pernas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "LegPress",
+          muscleGroup: "pernas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+
+        {
+          name: "Cadeira Extensora",
+          muscleGroup: "pernas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Cadeira Flexora",
+          muscleGroup: "pernas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+
+        {
+          name: "Panturrilha Sentado",
+          muscleGroup: "Panturrilhas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Panturrilha em Pé",
+          muscleGroup: "Panturrilha",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Mesa Flexora",
+          muscleGroup: "pernas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Cadeira Abdutora",
+          muscleGroup: "pernas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Flexora em pé unilateral",
+          muscleGroup: "pernas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Elevação Pélvica",
+          muscleGroup: "pernas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Cadeira Adutora",
+          muscleGroup: "pernas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Rosca Direta Barra W",
+          muscleGroup: "biceps",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Rosca Scott",
+          muscleGroup: "biceps",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Rosca 45°",
+          muscleGroup: "pernas",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+        {
+          name: "Rosca Testa",
+          muscleGroup: "biceps",
+          impactLevel: "medio",
+          category: "exercícios",
+        },
+      ];
+
+      for (const exercise of exercises) {
+        await this.addItem(exercise, { reload: false });
+      }
+      await this.loadAllItems();
     },
 
     async loadItem(id) {

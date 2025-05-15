@@ -1,23 +1,32 @@
 <template>
   <div
-    class="tw-border tw-border-slate-300 tw-rounded-md tw-h-[60vh] tw-px-2 tw-overflow-hidden tw-bg-black"
+    class="tw-border tw-border-slate-300 tw-rounded-md tw-h-[60vh] tw-px-2 tw-overflow-hidden"
   >
     <div v-if="!openSheet" class="tw-h-[60vh] tw-p-3 tw-overflow-hidden">
-      <div>
-        <span class="tw-text-xl"> Ficha: </span>
-        <span class="tw-text-lg">
-          {{ sheetStore.WorkoutSheet.title }}
-        </span>
+      <div class="tw-flex tw-items-center tw-justify-around">
+        <span class="tw-text-2xl"> Ficha: </span>
+
+        <q-select
+          v-model="selectedSheet"
+          :options="formattedSheets"
+          option-label="label"
+          option-value="value"
+          outlined
+          dense
+          rounded
+          class="tw-w-32"
+        />
       </div>
       <q-virtual-scroll
-        :items="sheetStore.WorkoutSheet.sheets"
+        :items="selectedSheet.data.divisions"
         virtual-scroll-item-size="5"
         class="tw-flex tw-flex-col tw-h-full"
+        v-if="selectedSheet"
       >
         <template v-slot="{ item, index }">
           <div
             :key="index"
-            class="tw-flex tw-justify-between tw-items-center tw-border tw-bg-neutral-400 tw-h-10 tw-rounded-md tw-p-2 tw-mb-3 tw-text-lg"
+            class="tw-flex tw-justify-between tw-items-center tw-border tw-bg-teal-50 tw-h-10 tw-rounded-xl tw-p-2 tw-mb-3 tw-text-lg tw-mt-2"
           >
             <div class="tw-text-black">{{ item.name }}</div>
             <q-btn
@@ -29,6 +38,7 @@
           </div>
         </template>
       </q-virtual-scroll>
+      <div v-else>Selecione uma ficha</div>
     </div>
     <div v-else class="tw-pt-1 tw-h-full">
       <div class="tw-w-full tw-h-8 tw-flex tw-justify-center tw-relative">
@@ -38,111 +48,105 @@
           size="sm"
           class="tw-absolute tw-left-0"
         />
-        <span class="tw-text-xl">
+        <span class="tw-text-lg">
           {{ sheet.name }}
         </span>
       </div>
       <q-scroll-area class="tw-relative tw-overflow-hidden tw-h-full">
         <div
-          v-for="(exercice, index) in sheet.exercises"
+          v-for="(exercise, index) in sheet.exercises"
           :key="index"
-          class="tw-flex tw-flex-col tw-border tw-bg-neutral-400 tw-rounded-md tw-p-2 tw-mb-3 tw-text-lg tw-transition-all tw-duration-300 tw-ease-in-out tw-relative tw-overflow-hidden"
+          class="tw-flex tw-flex-col tw-border tw-bg-teal-50 tw-h-10 tw-rounded-xl tw-p-2 tw-mb-3 tw-text-lg tw-transition-all tw-duration-300 tw-ease-in-out tw-relative tw-overflow-hidden"
           :class="{
             'tw-h-72': expandedIndex === index,
             'tw-h-10': expandedIndex !== index,
           }"
         >
-          <div class="tw-text-black">
-            {{ exercice.name }}
-            <q-btn
-              flat
-              :icon="
-                expandedIndex === index
-                  ? 'keyboard_arrow_up'
-                  : 'keyboard_arrow_down'
-              "
-              size="sm"
+          <div class="tw-flex tw-justify-between">
+            <span
+              class="tw-text-black tw-h-10 tw-text-sm"
               @click="toggleExpand(index)"
-              class="tw-h-10"
-            />
+            >
+              {{ exercise.exercise.data.name }}
+            </span>
 
             <q-toggle
               v-if="expandedIndex === index"
               v-model="editMode"
               icon="edit"
+              @update:model-value="(val) => onToggleEdit(val, exercise)"
             />
           </div>
           <q-form>
-            <q-input
+            <!-- <q-input
               label="Nome do exercicio"
               v-if="editMode"
               color="secondary"
               rounded
               flat
               dense
-              v-model="exercice.name"
-            />
-            <q-input
-              label="Carga"
-              rounded
-              flat
-              dense
-              v-model="exercice.weight"
-            />
+              v-model="exercise.name"
+            /> -->
+            <span class="tw-text-sm">
+              <!-- {{ exercise }} -->
+            </span>
+            <q-input label="Carga" rounded flat dense v-model="exercise.load" />
             <q-input
               label="Anotações"
               rounded
               flat
               dense
-              v-model="exercice.notes"
+              v-model="exercise.notes"
             />
             <q-btn
-              @click="handleHistory(exercice)"
+              @click="handleHistory(exercise)"
               label="Histórico de Carga"
               rounded
               flat
               dense
             />
             <q-btn
-              @click="saveExercice(exercice)"
+              @click="saveExercise(exercise)"
               label="salvar"
               v-if="editMode"
             />
           </q-form>
+          <q-dialog v-model="openHistory" class="tw-w-60 tw-h-20">
+            <q-card
+              class="tw-w-full tw-h-[400px] tw-p-4 tw-bg-slate-300 tw-text-black"
+            >
+              <q-card-section class="text-h6">
+                Histórico de Carga
+              </q-card-section>
+
+              <q-card-section class="tw-w-full">
+                <q-timeline>
+                  <q-timeline-entry
+                    v-for="(entry, index) in exercise.loadHistory"
+                    :key="index"
+                    :title="formatDate(entry.date)"
+                  >
+                    {{ entry.load + "kg" }}
+                  </q-timeline-entry>
+                </q-timeline>
+              </q-card-section>
+
+              <q-card-actions align="right">
+                <q-btn flat label="Fechar" @click="openHistory = false" />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
         </div>
-        <q-dialog v-model="openHistory" class="tw-w-60 tw-h-72">
-          <q-card class="tw-w-full tw-h-full tw-p-4 tw-bg-slate-600">
-            <q-card-section class="text-h6">
-              Histórico de Carga
-            </q-card-section>
-
-            <q-card-section class="tw-w-full tw-h-full">
-              <q-timeline>
-                <q-timeline-entry
-                  v-for="(entry, index) in weightHistory"
-                  :key="index"
-                  :title="entry.date"
-                >
-                  {{ entry.weight + "kg" }}
-                </q-timeline-entry>
-              </q-timeline>
-            </q-card-section>
-
-            <q-card-actions align="right">
-              <q-btn flat label="Fechar" @click="openHistory = false" />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
       </q-scroll-area>
     </div>
   </div>
 </template>
 <script setup>
-import { ref, onBeforeMount } from "vue";
+import { ref, onBeforeMount, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useQuasar, Dark } from "quasar";
 import { useSheet } from "stores/WorkoutSheet.js";
-import ExercicesSection from "src/components/ExercicesSection.vue";
+import ExercisesSection from "src/components/ExercisesSection.vue";
 import Panda from "src/assets/panda.png";
 
 const $q = useQuasar();
@@ -155,6 +159,22 @@ const toggleDarkMode = () => {
 };
 
 const tab = ref();
+const openSheet = ref(false);
+const sheet = ref();
+
+const onlySheets = computed(() =>
+  sheetStore.savedDataList.filter((e) => e.data.category === "fichas")
+);
+
+const formattedSheets = computed(() =>
+  onlySheets.value.map((item) => ({
+    label: item.data?.name || "Sem nome",
+    value: item,
+    ...item,
+  }))
+);
+
+const selectedSheet = ref();
 
 const exercise = ref({
   id: null,
@@ -166,9 +186,6 @@ const exercise = ref({
   restSeconds: null,
   notes: null,
 });
-
-const openSheet = ref(false);
-const sheet = ref();
 
 const handleSheet = (item) => {
   openSheet.value = true;
@@ -184,68 +201,53 @@ const toggleExpand = (index) => {
   expanded.value = true;
 };
 
-const handleExercice = (exercice) => {
-  console.log(exercice);
+const handleExercise = (exercise) => {
+  console.log(exercise);
 };
 
 const openHistory = ref(false);
 const weightHistory = ref();
-const handleHistory = (exercice) => {
-  console.log(exercice);
+const handleHistory = (exercise) => {
+  console.log(exercise);
   openHistory.value = true;
-  weightHistory.value = exercice.weightHistory;
+  weightHistory.value = exercise.loadHistory;
 };
 
 const editMode = ref(false);
+const previousLoads = ref({});
+const onToggleEdit = (isEditing, exercise) => {
+  if (isEditing) {
+    previousLoads.value[exercise.exercise.id] = exercise.load;
+  }
+};
 
-const saveExercice = async (exercice) => {
+const formatDate = (isoDate) => {
+  const date = new Date(isoDate);
+  return date.toLocaleDateString("pt-BR");
+};
+
+const saveExercise = async (exercise) => {
   try {
-    // TODO: mandar pro banco de dados
-    console.log(exercice);
+    const oldLoad = previousLoads.value[exercise.exercise.id];
+    if (!Array.isArray(exercise.loadHistory)) {
+      exercise.loadHistory = [];
+    }
+    if (oldLoad != null && oldLoad !== exercise.load) {
+      exercise.loadHistory.push({
+        load: oldLoad,
+        date: new Date().toISOString(),
+      });
+    }
+    console.log(exercise);
+    console.log(selectedSheet.value);
     editMode.value = false;
+    sheetStore.updateItem(selectedSheet.value.id, selectedSheet.value.data);
   } catch (error) {
     console.error(error);
   }
 };
-// const WorkoutSheet = ref({
-//   id: null,
-//   title: null,
-//   createdAt: null,
-//   sheets: [
-//     {
-//       id: null,
-//       name: "LegDay",
-//       muscleGroup: null,
-//       notes: null,
-//       exercises: [
-//         {
-//           id: null,
-//           name: null,
-//           muscleGroup: null,
-//           sets: null,
-//           reps: null,
-//           weight: null,
-//           restSeconds: null,
-//           notes: null,
-//         },
-//       ],
-//     },
-//   ],
-// });
-// const ficha = ref({
-//   exercicios: [],
-//   nome: null,
-// });
 
 onBeforeMount(() => {
-  // ficha.value = {
-  //   exercicios: [
-  //     { nome: "LegPress 45", carga: null, historico: [] },
-  //     { nome: "Agachamento", carga: null, historico: [] },
-  //     { nome: "Mesa extensora", carga: null, historico: [] },
-  //   ],
-  //   nome: "ABCDE",
-  // };
   tab.value = "Home";
   const dataAtual = new Date();
 });

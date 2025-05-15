@@ -6,18 +6,11 @@
       <render-list
         @delete-item="handleDelete"
         @edit-item="handleEdit"
-        :Items="onlyExercices"
+        :Items="onlyExercises"
+        title="Lista de Exercícios Cadastrados"
+        :actions="true"
       ></render-list>
     </div>
-    <!-- <div class="tw-w-full tw-h-80 tw-border">
-      <q-scroll-area class="tw-h-full tw-w-full">
-        lista de exercicios cadastrados
-
-        <div v-for="(exercice, index) in onlyExercices" :key="index">
-          {{ exercice }}
-        </div>
-      </q-scroll-area>
-    </div> -->
     <div class="tw-w-full tw-flex tw-justify-end tw-mt-4">
       <q-btn
         label="Adicionar Exercicio"
@@ -95,7 +88,7 @@
             label="Cadastrar"
             rounded
             flat
-            @click="handleNewExercice"
+            @click="handleNewExercise"
             color="white"
           />
         </q-card-actions>
@@ -116,9 +109,9 @@ const router = useRouter();
 const sheetStore = useSheet();
 
 const props = defineProps({
-  ExercicesList: Array,
+  ExercisesList: Array,
 });
-const emit = defineEmits(["sendExercice"]);
+const emit = defineEmits(["sendExercise"]);
 
 const muscleGroups = [
   { label: "Peito", value: "peito" },
@@ -181,13 +174,15 @@ const updateItem = () => {
   clearForm();
   itemToEdit.value = null;
 };
-const handleNewExercice = () => {
+const handleNewExercise = () => {
   sheetStore.addItem(formData.value);
   openForm.value = false;
   clearForm();
 };
-const onlyExercices = computed(() =>
-  props.ExercicesList.filter((e) => e.data.category === "exercícios")
+const onlyExercises = computed(() =>
+  props.ExercisesList.filter((e) => e.data.category === "exercícios").sort(
+    (a, b) => a.data.name.localeCompare(b.data.name)
+  )
 );
 </script>
 
