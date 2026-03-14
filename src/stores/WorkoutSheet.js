@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
-import { Storage } from "@capacitor/storage";
+// import { Storage } from "@capacitor/storage";
+import { Preferences } from "@capacitor/preferences";
 import { v4 as uuidv4 } from "uuid";
 
 export const useSheet = defineStore("sheet", {
@@ -84,18 +85,27 @@ export const useSheet = defineStore("sheet", {
     async addItem(item, options = { reload: true }) {
       const id = uuidv4();
       try {
-        await Storage.set({
+        await Preferences.set({
           key: id,
           value: JSON.stringify(item),
         });
-        const storedKeys = await Storage.get({ key: "keys" });
+        // await Storage.set({
+        //   key: id,
+        //   value: JSON.stringify(item),
+        // });
+        const storedKeys = await Preferences.get({ key: "keys" });
+        // const storedKeys = await Storage.get({ key: "keys" });
         const keys = storedKeys.value ? JSON.parse(storedKeys.value) : [];
         keys.push(id);
 
-        await Storage.set({
+        await Preferences.set({
           key: "keys",
           value: JSON.stringify(keys),
         });
+        // await Storage.set({
+        //   key: "keys",
+        //   value: JSON.stringify(keys),
+        // });
 
         console.log("Item salvo com id:", id);
         if (options.reload) {
@@ -105,15 +115,16 @@ export const useSheet = defineStore("sheet", {
         console.error("Error saving data", e);
       }
     },
-
     async loadAllItems() {
       try {
-        const storedKeys = await Storage.get({ key: "keys" });
+        const storedKeys = await Preferences.get({ key: "keys" });
+        // const storedKeys = await Storage.get({ key: "keys" });
         const keys = storedKeys.value ? JSON.parse(storedKeys.value) : [];
 
         const allData = [];
         for (const id of keys) {
-          const { value } = await Storage.get({ key: id });
+          const { value } = await Preferences.get({ key: id });
+          // const { value } = await Storage.get({ key: id });
           allData.push({
             id,
             data: value ? JSON.parse(value) : null,
@@ -331,7 +342,7 @@ export const useSheet = defineStore("sheet", {
 
     async loadItem(id) {
       try {
-        const { value } = await Storage.get({ key: id });
+        const { value } = await Preferences.get({ key: id });
         const data = value ? JSON.parse(value) : null;
         console.log("Loaded sheet by id:", id, data);
         return data;
@@ -342,7 +353,7 @@ export const useSheet = defineStore("sheet", {
 
     async updateItem(id, newData) {
       try {
-        await Storage.set({
+        await Preferences.set({
           key: id,
           value: JSON.stringify(newData),
         });
@@ -355,13 +366,13 @@ export const useSheet = defineStore("sheet", {
 
     async deleteItem(id) {
       try {
-        await Storage.remove({ key: id });
+        await Preferences.remove({ key: id });
 
-        const storedKeys = await Storage.get({ key: "keys" });
+        const storedKeys = await Preferences.get({ key: "keys" });
         let keys = storedKeys.value ? JSON.parse(storedKeys.value) : [];
         keys = keys.filter((k) => k !== id);
 
-        await Storage.set({
+        await Preferences.set({
           key: "keys",
           value: JSON.stringify(keys),
         });
@@ -375,7 +386,7 @@ export const useSheet = defineStore("sheet", {
 
     async clearAllItems() {
       try {
-        await Storage.clear();
+        await Preferences.clear();
         this.savedDataList = [];
         console.log("All data cleared!");
       } catch (e) {

@@ -1,0 +1,13 @@
+{
+  "name": "sugardogsrecibos",
+  "version": "0.0.1",
+  "description": "Projeto com o objetivos de gerar recibos para empresa Sugar Dogs",
+  "author": "Arthur Luiz da Silva",
+  "private": true,
+  "dependencies": {
+    "@capacitor/android": "^6.2.1",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  }
+}

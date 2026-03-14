@@ -54,7 +54,6 @@ import HomeSection from "src/components/HomeSection.vue";
 import FichasSection from "src/components/FichasSection.vue";
 
 import Panda from "src/assets/panda.png";
-import { Storage } from "@capacitor/storage";
 import { v4 as uuidv4 } from "uuid";
 
 const tab = ref();
@@ -75,7 +74,7 @@ onBeforeMount(() => {
   // };
   tab.value = "Home";
   const dataAtual = new Date();
-  getAllData();
+
   sheetStore.loadAllItems();
 });
 
@@ -86,81 +85,8 @@ const form = ref({
   tel: "",
   idade: "",
 });
-const saveData = async (data) => {
-  const key = uuidv4(); // Gerar uma chave única para cada item
-  try {
-    await Storage.set({
-      key: key,
-      value: JSON.stringify(data), // Convertendo o dado para string antes de salvar
-    });
-
-    // Salvar a chave no array de chaves para uso futuro
-    const storedKeys = await Storage.get({ key: "keys" });
-    const keys = storedKeys.value ? JSON.parse(storedKeys.value) : [];
-    keys.push(key);
-    await Storage.set({
-      key: "keys",
-      value: JSON.stringify(keys),
-    });
-
-    console.log("Data saved with key:", key);
-  } catch (e) {
-    console.error("Error saving data", e);
-  }
-};
 
 const tudo = ref([]);
-const getAllData = async () => {
-  try {
-    const storedKeys = await Storage.get({ key: "keys" });
-    const keys = storedKeys.value ? JSON.parse(storedKeys.value) : [];
-    const allData = [];
-
-    for (const key of keys) {
-      const { value } = await Storage.get({ key: key });
-      allData.push({
-        key: key,
-        data: value ? JSON.parse(value) : null,
-      });
-    }
-    tudo.value = allData;
-    console.log("All Data:", allData);
-    return allData;
-  } catch (e) {
-    console.error("Error loading data", e);
-  }
-};
-
-// Carregar dados (Read)
-const loadData = async (key) => {
-  try {
-    const { value } = await Storage.get({ key: key });
-    console.log("Loaded data:", value);
-    return value;
-  } catch (e) {
-    console.error("Error loading data", e);
-  }
-};
-
-// Atualizar dados (Update) - sobrescreve o valor atual
-const updateData = async (key, newValue) => {
-  try {
-    await saveData(key, newValue); // A atualização é feita sobrescrevendo o valor
-    console.log("Data updated to:", newValue);
-  } catch (e) {
-    console.error("Error updating data", e);
-  }
-};
-
-// Deletar dados (Delete)
-const removeData = async (key) => {
-  try {
-    await Storage.remove({ key: key });
-    console.log("Data removed:", key);
-  } catch (e) {
-    console.error("Error removing data", e);
-  }
-};
 
 // Exemplo de uso dentro do componente
 const handleCRUDOperations = async () => {
@@ -176,15 +102,6 @@ const handleCRUDOperations = async () => {
 
   // Deletar
   await removeData("username");
-};
-
-const clearAllData = async () => {
-  try {
-    await Storage.clear();
-    console.log("All data cleared!");
-  } catch (e) {
-    console.error("Error clearing data", e);
-  }
 };
 </script>
 

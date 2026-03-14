@@ -1,4 +1,4 @@
-package com.example.app;
+package com.arthur.bearfit;
 
 import com.getcapacitor.BridgeActivity;
 
